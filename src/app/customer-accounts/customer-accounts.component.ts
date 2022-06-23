@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {CustomerModel} from "../models/customer.model";
+import {Customer} from "../model/customer.model";
+import {Observable} from "rxjs";
+import {AccountDetails} from "../model/account.model";
+import {CustomerService} from "../services/customer.service";
 
 @Component({
   selector: 'app-customer-accounts',
@@ -8,16 +11,21 @@ import {CustomerModel} from "../models/customer.model";
   styleUrls: ['./customer-accounts.component.css']
 })
 export class CustomerAccountsComponent implements OnInit {
-  customerId! : string ;
-  customer! : CustomerModel;
 
-  constructor(private activatedRoute : ActivatedRoute,
-              private router : Router) {
-    this.customer = this.router.getCurrentNavigation()?.extras.state as CustomerModel;
+  customerId! : string;
+  customer!: Customer;
+  accounts!: Observable<Array<AccountDetails>>;
+  constructor(private customerService : CustomerService,private route: ActivatedRoute,private router:Router) {
+    this.customer=this.router.getCurrentNavigation()?.extras.state as Customer;
   }
 
   ngOnInit(): void {
-    this.customerId = this.activatedRoute.snapshot.params['id'];
+    this.customerId=this.route.snapshot.params['id']
+    this.accounts=this.customerService.getCustomerAccounts(Number(this.customerId))
+  }
+
+  handleDetails(account:AccountDetails){
+    this.router.navigateByUrl("/accounts/"+account.id)
   }
 
 }
